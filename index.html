@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgilFlow — Gestão Ágil de Projetos</title>
+  <meta name="description" content="Gerencie seus projetos com metodologias ágeis Scrum e Kanban. Acompanhe sprints, backlogs e o progresso da sua equipe em tempo real." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-void:#080c12;--bg-base:#0d1117;--bg-surface:#161b27;--bg-elevated:#1e2536;--bg-card:#222a3a;--bg-hover:#2a3347;
+      --border-subtle:rgba(255,255,255,0.06);--border-light:rgba(255,255,255,0.10);--border-medium:rgba(255,255,255,0.16);
+      --text-primary:#e8edf5;--text-secondary:#8b96ab;--text-muted:#4a5568;
+      --cyan:#00d4e8;--cyan-dim:rgba(0,212,232,0.15);--purple:#9d6fff;--purple-dim:rgba(157,111,255,0.15);
+      --green:#34d399;--green-dim:rgba(52,211,153,0.15);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.15);
+      --rose:#fb7185;--rose-dim:rgba(251,113,133,0.15);
+      --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-xl:22px;
+      --shadow-float:0 4px 24px rgba(0,0,0,0.5),0 1px 4px rgba(0,0,0,0.3);
+      --transition-fast:0.15s ease;--transition-smooth:0.25s cubic-bezier(0.4,0,0.2,1);--transition-spring:0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{height:100%}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-void);color:var(--text-primary);height:100%;overflow-x:hidden;font-size:14px;line-height:1.5}
+    button{font-family:inherit;cursor:pointer;border:none;outline:none}
+    input,textarea,select{font-family:inherit;outline:none}
+    ul{list-style:none}
+    .app{display:flex;height:100vh;overflow:hidden}
+    .sidebar{width:220px;flex-shrink:0;background:var(--bg-base);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:24px 0;z-index:10}
+    .sidebar-logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px;border-bottom:1px solid var(--border-subtle)}
+    .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 20px rgba(0,212,232,0.25)}
+    .logo-text{font-size:16px;font-weight:700;letter-spacing:-0.3px}
+    .logo-sub{font-size:10px;color:var(--text-muted);font-weight:500}
+    .sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+    .nav-label{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;padding:8px 8px 4px}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-md);color:var(--text-secondary);font-size:13.5px;font-weight:500;cursor:pointer;transition:all var(--transition-fast);user-select:none}
+    .nav-item:hover{background:var(--bg-elevated);color:var(--text-primary)}
+    .nav-item.active{background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,212,232,0.2)}
+    .nav-item .nav-icon{font-size:16px;width:20px;text-align:center}
+    .nav-item .badge{margin-left:auto;background:var(--purple-dim);color:var(--purple);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid rgba(157,111,255,0.25)}
+    .sidebar-footer{padding:16px 12px 0;border-top:1px solid var(--border-subtle)}
+    .sprint-mini{background:var(--bg-elevated);border-radius:var(--radius-md);padding:12px;border:1px solid var(--border-subtle)}
+    .sprint-mini-title{font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
+    .sprint-mini-name{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px}
+    .mini-bar-wrap{background:var(--bg-base);border-radius:20px;height:4px;overflow:hidden}
+    .mini-bar{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:20px;transition:width 0.6s ease}
+    .mini-bar-label{font-size:11px;color:var(--text-secondary);margin-top:5px}
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-void)}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border-subtle);background:var(--bg-base);flex-shrink:0}
+    .topbar-left{display:flex;flex-direction:column}
+    .topbar-title{font-size:20px;font-weight:700;letter-spacing:-0.4px}
+    .topbar-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
+    .topbar-actions{display:flex;align-items:center;gap:10px}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-md);font-size:13px;font-weight:600;transition:all var(--transition-smooth);cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--cyan),#00a8c0);color:#001820;box-shadow:0 2px 12px rgba(0,212,232,0.3)}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,212,232,0.45)}
+    .btn-secondary{background:var(--bg-elevated);color:var(--text-secondary);border:1px solid var(--border-light)}
+    .btn-secondary:hover{background:var(--bg-hover);color:var(--text-primary)}
+    .btn-danger{background:var(--rose-dim);color:var(--rose);border:1px solid rgba(251,113,133,0.25)}
+    .btn-danger:hover{background:rgba(251,113,133,0.25)}
+    .btn-sm{padding:5px 11px;font-size:12px}
+    .page{display:none;flex:1;overflow-y:auto;padding:24px 28px;flex-direction:column}
+    .page.active{display:flex;animation:fadeIn 0.2s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .burndown-section{background:var(--bg-surface);border-radius:var(--radius-xl);border:1px solid var(--border-subtle);padding:24px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.4)}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .section-title{font-size:15px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+    .sprint-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+    .stat-card{background:var(--bg-elevated);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--border-subtle);transition:all var(--transition-smooth)}
+    .stat-card:hover{border-color:var(--border-light);transform:translateY(-1px)}
+    .stat-label{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
+    .stat-value{font-size:28px;font-weight:800;letter-spacing:-1px}
+    .stat-value.cyan{color:var(--cyan)}.stat-value.purple{color:var(--purple)}.stat-value.green{color:var(--green)}.stat-value.amber{color:var(--amber)}
+    .stat-sub{font-size:11px;color:var(--text-muted);margin-top:4px}
+    .burndown-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:500}
+    .burndown-bar-wrap{background:var(--bg-base);border-radius:20px;height:10px;overflow:hidden;border:1px solid var(--border-subtle)}
+    .burndown-bar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:20px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden}
+    .burndown-bar-fill::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);animation:shimmer 2s infinite}
+    @keyframes shimmer{to{left:200%}}
+    .burndown-percent{font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .kanban-board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;flex:1;min-height:0}
+    .kanban-column{background:var(--bg-surface);border-radius:var(--radius-xl);border:1px solid var(--border-subtle);display:flex;flex-direction:column;overflow:hidden;min-height:400px}
+    .kanban-column.drag-over{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan),0 0 20px rgba(0,212,232,0.25)}
+    .col-header{padding:16px 18px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-subtle);flex-shrink:0}
+    .col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .col-dot.todo{background:var(--text-muted)}.col-dot.progress{background:var(--amber);box-shadow:0 0 8px var(--amber)}.col-dot.done{background:var(--green);box-shadow:0 0 8px var(--green)}
+    .col-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+    .col-count{margin-left:auto;background:var(--bg-elevated);color:var(--text-muted);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid var(--border-subtle)}
+    .col-body{flex:1;padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+    .col-body::-webkit-scrollbar{width:4px}.col-body::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px}
+    .add-task-btn{display:flex;align-items:center;gap:6px;padding:10px 12px;margin:0 12px 12px;border-radius:var(--radius-md);background:transparent;border:1px dashed var(--border-light);color:var(--text-muted);font-size:12px;font-weight:500;cursor:pointer;transition:all var(--transition-fast)}
+    .add-task-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-dim)}
+    .task-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:14px;border:1px solid var(--border-subtle);box-shadow:0 4px 24px rgba(0,0,0,0.5),0 1px 4px rgba(0,0,0,0.3);cursor:grab;transition:all var(--transition-smooth);position:relative;overflow:hidden;user-select:none}
+    .task-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
+    .task-card.priority-alta::before{background:var(--rose);box-shadow:0 0 8px var(--rose)}.task-card.priority-media::before{background:var(--amber)}.task-card.priority-baixa::before{background:var(--green)}
+    .task-card:hover{transform:translateY(-2px);border-color:var(--border-medium);box-shadow:0 8px 30px rgba(0,0,0,0.5),0 2px 8px rgba(0,0,0,0.3)}
+    .task-card:active{cursor:grabbing}
+    .task-card.dragging{opacity:0.4;transform:scale(0.98)}
+    .task-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .task-title{font-size:13.5px;font-weight:600;color:var(--text-primary);line-height:1.4;flex:1}
+    .task-menu-btn{background:transparent;color:var(--text-muted);font-size:14px;padding:2px 4px;border-radius:4px;opacity:0;transition:all var(--transition-fast);flex-shrink:0}
+    .task-card:hover .task-menu-btn{opacity:1}.task-menu-btn:hover{background:var(--bg-hover);color:var(--text-primary)}
+    .task-desc{font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .task-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
+    .tag-priority-alta{background:var(--rose-dim);color:var(--rose);border:1px solid rgba(251,113,133,0.2)}
+    .tag-priority-media{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(251,191,36,0.2)}
+    .tag-priority-baixa{background:var(--green-dim);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
+    .tag-points{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(157,111,255,0.2)}
+    .task-assignee{margin-left:auto;display:flex;align-items:center;gap:4px}
+    .avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#001820;flex-shrink:0;border:1.5px solid var(--bg-card)}
+    .avatar.amber{background:linear-gradient(135deg,var(--amber),#f59e0b);color:#1a0a00}
+    .avatar.green{background:linear-gradient(135deg,var(--green),#10b981);color:#001a0e}
+    .avatar.rose{background:linear-gradient(135deg,var(--rose),#f43f5e);color:#1a0007}
+    .avatar.purple{background:linear-gradient(135deg,var(--purple),#7c5de0);color:#fff}
+    .backlog-header-row{display:grid;grid-template-columns:1fr 100px 90px 130px 80px 80px;gap:12px;padding:10px 16px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border-subtle)}
+    .backlog-item{display:grid;grid-template-columns:1fr 100px 90px 130px 80px 80px;gap:12px;align-items:center;padding:12px 16px;background:var(--bg-surface);border-radius:var(--radius-md);border:1px solid var(--border-subtle);margin-bottom:8px;transition:all var(--transition-fast)}
+    .backlog-item:hover{background:var(--bg-elevated);border-color:var(--border-light)}
+    .backlog-item-title{font-size:13.5px;font-weight:600}.backlog-item-desc{font-size:12px;color:var(--text-secondary);margin-top:2px}
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .settings-card{background:var(--bg-surface);border-radius:var(--radius-xl);border:1px solid var(--border-subtle);padding:24px}
+    .settings-card-title{font-size:14px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    .form-group{margin-bottom:16px}
+    .form-label{font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+    .form-input{width:100%;background:var(--bg-elevated);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:9px 12px;color:var(--text-primary);font-size:13px;transition:all var(--transition-fast)}
+    .form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,212,232,0.1)}
+    .form-select{width:100%;background:var(--bg-elevated);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:9px 12px;color:var(--text-primary);font-size:13px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238b96ab'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+    .form-select:focus{border-color:var(--cyan)}
+    .team-list{display:flex;flex-direction:column;gap:10px}
+    .team-member{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-elevated);border-radius:var(--radius-md);border:1px solid var(--border-subtle)}
+    .member-info{flex:1}.member-name{font-size:13px;font-weight:600}.member-role{font-size:11px;color:var(--text-muted)}
+    .remove-member-btn{background:transparent;color:var(--text-muted);font-size:14px;padding:4px;border-radius:4px;transition:all var(--transition-fast)}
+    .remove-member-btn:hover{color:var(--rose);background:var(--rose-dim)}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal{background:var(--bg-surface);border-radius:var(--radius-xl);border:1px solid var(--border-light);box-shadow:0 24px 80px rgba(0,0,0,0.6);width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(0.97);transition:transform var(--transition-spring)}
+    .modal-overlay.open .modal{transform:translateY(0) scale(1)}
+    .modal::-webkit-scrollbar{width:4px}.modal::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 18px;border-bottom:1px solid var(--border-subtle);position:sticky;top:0;background:var(--bg-surface);z-index:1}
+    .modal-title{font-size:16px;font-weight:700}
+    .modal-close{background:var(--bg-elevated);color:var(--text-secondary);width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;transition:all var(--transition-fast)}
+    .modal-close:hover{background:var(--rose-dim);color:var(--rose)}
+    .modal-body{padding:22px 24px}
+    .modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--border-subtle)}
+    .points-grid{display:flex;gap:8px;flex-wrap:wrap}
+    .point-btn{width:44px;height:36px;background:var(--bg-elevated);border:1px solid var(--border-light);border-radius:var(--radius-md);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition-fast)}
+    .point-btn:hover{border-color:var(--purple);color:var(--purple)}
+    .point-btn.selected{background:var(--purple-dim);border-color:var(--purple);color:var(--purple);box-shadow:0 0 20px rgba(157,111,255,0.25)}
+    .priority-grid{display:flex;gap:8px}
+    .prio-btn{flex:1;padding:8px 10px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--bg-elevated);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all var(--transition-fast)}
+    .prio-btn.alta.selected{background:var(--rose-dim);border-color:var(--rose);color:var(--rose)}
+    .prio-btn.media.selected{background:var(--amber-dim);border-color:var(--amber);color:var(--amber)}
+    .prio-btn.baixa.selected{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+    .prio-btn:hover{border-color:var(--border-medium);color:var(--text-primary)}
+    .confirm-modal{width:400px}.confirm-icon{font-size:40px;text-align:center;margin-bottom:12px}
+    .confirm-text{text-align:center;color:var(--text-secondary);font-size:14px;line-height:1.6}
+    .context-menu{position:fixed;background:var(--bg-elevated);border:1px solid var(--border-light);border-radius:var(--radius-lg);box-shadow:0 4px 24px rgba(0,0,0,0.5);z-index:2000;padding:6px;min-width:180px;opacity:0;pointer-events:none;transform:scale(0.95);transition:all var(--transition-fast)}
+    .context-menu.open{opacity:1;pointer-events:all;transform:scale(1)}
+    .context-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;color:var(--text-secondary);transition:all var(--transition-fast)}
+    .context-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+    .context-item.danger{color:var(--rose)}.context-item.danger:hover{background:var(--rose-dim)}
+    .context-sep{height:1px;background:var(--border-subtle);margin:4px 0}
+    .toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:9999;pointer-events:none}
+    .toast{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--bg-elevated);border:1px solid var(--border-light);border-radius:var(--radius-lg);box-shadow:0 4px 24px rgba(0,0,0,0.5);font-size:13px;font-weight:500;color:var(--text-primary);min-width:260px;pointer-events:all;animation:slideInUp 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+    .toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--rose)}.toast.info{border-left:3px solid var(--cyan)}.toast.warning{border-left:3px solid var(--amber)}
+    @keyframes slideInUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes fadeOut{to{opacity:0;transform:translateY(10px)}}
+    .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:var(--text-muted);text-align:center}
+    .empty-icon{font-size:36px;margin-bottom:12px;opacity:0.5}.empty-text{font-size:13px;line-height:1.5}
+    .sprint-banner{display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(135deg,rgba(0,212,232,0.08),rgba(157,111,255,0.08));border:1px solid rgba(0,212,232,0.2);border-radius:var(--radius-lg);margin-bottom:16px}
+    .sprint-banner-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.8)}}
+    .sprint-banner-info{flex:1}
+    .sprint-banner-name{font-size:13px;font-weight:700;color:var(--text-primary)}
+    .sprint-banner-dates{font-size:11px;color:var(--text-secondary);margin-top:2px}
+    .no-sprint-banner{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--bg-surface);border:1px dashed var(--border-light);border-radius:var(--radius-lg);margin-bottom:16px;color:var(--text-muted);font-size:13px}
+    .archived-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:20px;font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+    ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px}
+  </style>
+</head><body>
+<div class="context-menu" id="contextMenu">
+  <div class="context-item" id="ctxEdit">✏️ Editar tarefa</div>
+  <div class="context-item" id="ctxMoveLeft">⬅️ Mover para anterior</div>
+  <div class="context-item" id="ctxMoveRight">➡️ Mover para próxima</div>
+  <div class="context-sep"></div>
+  <div class="context-item" id="ctxToBacklog">📋 Enviar ao Backlog</div>
+  <div class="context-sep"></div>
+  <div class="context-item danger" id="ctxDelete">🗑️ Excluir</div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Nova Tarefa</span>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Título *</label><input type="text" class="form-input" id="taskTitle" placeholder="Ex: Implementar autenticação JWT" /></div>
+      <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-input" id="taskDesc" rows="3" placeholder="Detalhe o que precisa ser feito..."></textarea></div>
+      <div class="form-group"><label class="form-label">Story Points (Fibonacci)</label>
+        <div class="points-grid" id="pointsGrid">
+          <button class="point-btn" data-val="1">1</button><button class="point-btn" data-val="2">2</button>
+          <button class="point-btn" data-val="3">3</button><button class="point-btn" data-val="5">5</button>
+          <button class="point-btn" data-val="8">8</button><button class="point-btn" data-val="13">13</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Prioridade</label>
+        <div class="priority-grid">
+          <button class="prio-btn alta" data-val="alta">🔴 Alta</button>
+          <button class="prio-btn media" data-val="media">🟡 Média</button>
+          <button class="prio-btn baixa" data-val="baixa">🟢 Baixa</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Responsável</label><select class="form-select" id="taskAssignee"></select></div>
+      <div class="form-group" id="colSelectGroup"><label class="form-label">Coluna inicial</label>
+        <select class="form-select" id="taskColumn">
+          <option value="todo">A Fazer</option><option value="progress">Em Progresso</option><option value="done">Concluído</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" id="modalCancel">Cancelar</button><button class="btn btn-primary" id="modalSave">💾 Salvar Tarefa</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="sprintModal">
+  <div class="modal confirm-modal">
+    <div class="modal-header"><span class="modal-title" id="sprintModalTitle">Sprint</span><button class="modal-close" id="sprintModalClose">✕</button></div>
+    <div class="modal-body"><div class="confirm-icon" id="sprintModalIcon">🚀</div><p class="confirm-text" id="sprintModalText"></p></div>
+    <div class="modal-footer"><button class="btn btn-secondary" id="sprintModalCancel">Cancelar</button><button class="btn btn-primary" id="sprintModalConfirm">Confirmar</button></div>
+  </div>
+</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <div><div class="logo-text">AgilFlow</div><div class="logo-sub">GESTÃO ÁGIL</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Principal</div>
+      <div class="nav-item active" data-page="dashboard" id="nav-dashboard"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" data-page="backlog" id="nav-backlog"><span class="nav-icon">📋</span> Backlog<span class="badge" id="backlogBadge">0</span></div>
+      <div class="nav-label">Configurações</div>
+      <div class="nav-item" data-page="settings" id="nav-settings"><span class="nav-icon">⚙️</span> Configurações</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sprint-mini">
+        <div class="sprint-mini-title">Sprint Atual</div>
+        <div class="sprint-mini-name" id="sidebarSprintName">Nenhum sprint</div>
+        <div class="mini-bar-wrap"><div class="mini-bar" id="sidebarProgressBar" style="width:0%"></div></div>
+        <div class="mini-bar-label" id="sidebarProgressLabel">0% concluído</div>
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-subtitle" id="topbarSub">Visão geral do seu projeto ágil</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm" id="btnStartSprint" style="display:none">▶ Iniciar Sprint</button>
+        <button class="btn btn-danger btn-sm" id="btnEndSprint" style="display:none">🏁 Encerrar Sprint</button>
+        <button class="btn btn-primary btn-sm" id="btnNewTask">+ Nova Tarefa</button>
+      </div>
+    </header>
+    <section class="page active" id="page-dashboard">
+      <div id="sprintBannerContainer"></div>
+      <div class="burndown-section">
+        <div class="sprint-stats">
+          <div class="stat-card"><div class="stat-label">Story Points — Total</div><div class="stat-value cyan" id="statTotal">0</div><div class="stat-sub">no sprint atual</div></div>
+          <div class="stat-card"><div class="stat-label">Concluídos</div><div class="stat-value green" id="statDone">0</div><div class="stat-sub">story points</div></div>
+          <div class="stat-card"><div class="stat-label">Em Progresso</div><div class="stat-value amber" id="statProgress">0</div><div class="stat-sub">story points</div></div>
+          <div class="stat-card"><div class="stat-label">A Fazer</div><div class="stat-value purple" id="statTodo">0</div><div class="stat-sub">story points</div></div>
+        </div>
+        <div>
+          <div class="section-header">
+            <div class="section-title"><span class="dot"></span>Progresso do Sprint</div>
+            <div class="burndown-percent" id="burndownPercent">0%</div>
+          </div>
+          <div class="burndown-labels"><span>Início</span><span id="burndownDaysLeft"></span><span>Meta</span></div>
+          <div class="burndown-bar-wrap"><div class="burndown-bar-fill" id="burndownBar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="section-header" style="margin-bottom:12px">
+        <div class="section-title"><span class="dot" style="background:var(--purple);box-shadow:0 0 8px var(--purple)"></span>Quadro Kanban</div>
+      </div>
+      <div class="kanban-board" id="kanbanBoard">
+        <div class="kanban-column" id="col-todo" data-col="todo" ondragover="handleDragOver(event,'todo')" ondragleave="handleDragLeave(event,'todo')" ondrop="handleDrop(event,'todo')">
+          <div class="col-header"><div class="col-dot todo"></div><div class="col-title" style="color:var(--text-secondary)">A Fazer</div><div class="col-count" id="count-todo">0</div></div>
+          <div class="col-body" id="cards-todo"></div>
+          <button class="add-task-btn" onclick="openNewTask('todo')">+ Adicionar tarefa</button>
+        </div>
+        <div class="kanban-column" id="col-progress" data-col="progress" ondragover="handleDragOver(event,'progress')" ondragleave="handleDragLeave(event,'progress')" ondrop="handleDrop(event,'progress')">
+          <div class="col-header"><div class="col-dot progress"></div><div class="col-title" style="color:var(--amber)">Em Progresso</div><div class="col-count" id="count-progress">0</div></div>
+          <div class="col-body" id="cards-progress"></div>
+          <button class="add-task-btn" onclick="openNewTask('progress')">+ Adicionar tarefa</button>
+        </div>
+        <div class="kanban-column" id="col-done" data-col="done" ondragover="handleDragOver(event,'done')" ondragleave="handleDragLeave(event,'done')" ondrop="handleDrop(event,'done')">
+          <div class="col-header"><div class="col-dot done"></div><div class="col-title" style="color:var(--green)">Concluído</div><div class="col-count" id="count-done">0</div></div>
+          <div class="col-body" id="cards-done"></div>
+          <button class="add-task-btn" onclick="openNewTask('done')">+ Adicionar tarefa</button>
+        </div>
+      </div>
+    </section>
+    <section class="page" id="page-backlog">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div><h1 style="font-size:17px;font-weight:700;margin-bottom:3px">Product Backlog</h1><p style="font-size:12px;color:var(--text-muted)">Gerencie todas as ideias e histórias do produto</p></div>
+        <button class="btn btn-primary btn-sm" onclick="openNewTask('backlog')">+ Adicionar ao Backlog</button>
+      </div>
+      <div class="backlog-header-row" style="margin-bottom:8px">
+        <span>Título / Descrição</span><span>Prioridade</span><span>Pontos</span><span>Responsável</span><span>Sprint</span><span>Excluir</span>
+      </div>
+      <div id="backlogList"></div>
+    </section>
+    <section class="page" id="page-settings">
+      <div style="margin-bottom:24px">
+        <h1 style="font-size:17px;font-weight:700;margin-bottom:3px">Configurações do Projeto</h1>
+        <p style="font-size:12px;color:var(--text-muted)">Personalize seu fluxo de trabalho ágil</p>
+      </div>
+      <div class="settings-grid">
+        <div class="settings-card">
+          <div class="settings-card-title"><span>⏱️</span> Configurações de Sprint</div>
+          <div class="form-group"><label class="form-label">Nome do Projeto</label><input type="text" class="form-input" id="cfgProjectName" placeholder="Meu Projeto Ágil" /></div>
+          <div class="form-group"><label class="form-label">Duração do Sprint</label>
+            <select class="form-select" id="cfgSprintDuration">
+              <option value="7">1 semana (7 dias)</option><option value="14" selected>2 semanas (14 dias)</option>
+              <option value="21">3 semanas (21 dias)</option><option value="28">1 mês (28 dias)</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Nome do próximo Sprint</label><input type="text" class="form-input" id="cfgSprintName" placeholder="Ex: Sprint 1 — MVP" /></div>
+          <button class="btn btn-primary" style="width:100%" id="btnSaveSettings">💾 Salvar Configurações</button>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title"><span>👥</span> Membros do Time</div>
+          <div class="form-group" style="display:flex;gap:8px">
+            <input type="text" class="form-input" id="newMemberName" placeholder="Nome do membro" style="flex:1" />
+            <select class="form-select" id="newMemberRole" style="width:130px">
+              <option>Dev</option><option>Designer</option><option>QA</option><option>PO</option><option>Scrum Master</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <select class="form-select" id="newMemberColor">
+              <option value="cyan">Ciano</option><option value="amber">Âmbar</option><option value="green">Verde</option><option value="rose">Rosa</option><option value="purple">Roxo</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" style="width:100%;margin-bottom:16px" id="btnAddMember">+ Adicionar Membro</button>
+          <div class="team-list" id="teamList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div><script>
+var state={projectName:'Meu Projeto Agil',sprintDuration:14,sprint:null,nextSprintName:'Sprint 1 - MVP',tasks:[],backlog:[],team:[],archived:[]};
+function saveState(){try{localStorage.setItem('agilflow_v3',JSON.stringify(state));}catch(e){}}
+function loadState(){try{var r=localStorage.getItem('agilflow_v3');if(r)state=Object.assign({},state,JSON.parse(r));}catch(e){}}
+function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36);}
+function seedData(){
+  if(state.team.length===0){
+    state.team=[
+      {id:uid(),name:'Ana Lima',role:'PO',color:'cyan'},
+      {id:uid(),name:'Bruno Silva',role:'Dev',color:'purple'},
+      {id:uid(),name:'Carla Nunes',role:'Dev',color:'green'},
+      {id:uid(),name:'Diego Mota',role:'QA',color:'amber'},
+      {id:uid(),name:'Elisa Cruz',role:'Scrum Master',color:'rose'}
+    ];
+  }
+  if(state.tasks.length===0&&state.backlog.length===0){
+    var ms=state.team.map(function(m){return m.name;});
+    state.tasks=[
+      {id:uid(),title:'Configurar pipeline de CI/CD',desc:'Implementar GitHub Actions para testes automatizados e deploy continuo.',points:5,priority:'alta',assignee:ms[1],column:'todo',sprintId:null,archived:false},
+      {id:uid(),title:'Sistema de autenticacao JWT',desc:'Fluxo de login, cadastro e recuperacao de senha com JWT e refresh tokens.',points:8,priority:'alta',assignee:ms[2],column:'progress',sprintId:null,archived:false},
+      {id:uid(),title:'API de usuarios - CRUD completo',desc:'Endpoints REST para criar, listar, atualizar e deletar usuarios com validacoes.',points:5,priority:'media',assignee:ms[1],column:'progress',sprintId:null,archived:false},
+      {id:uid(),title:'Tela de dashboard principal',desc:'Componente com graficos de overview e metricas do projeto em tempo real.',points:3,priority:'media',assignee:ms[2],column:'done',sprintId:null,archived:false},
+      {id:uid(),title:'Testes E2E com Playwright',desc:'Cobertura dos fluxos criticos de negocio com testes end-to-end automatizados.',points:8,priority:'media',assignee:ms[3],column:'todo',sprintId:null,archived:false},
+      {id:uid(),title:'Documentacao da API Swagger',desc:'Gerar documentacao OpenAPI para todos os endpoints publicos.',points:3,priority:'baixa',assignee:ms[1],column:'todo',sprintId:null,archived:false},
+      {id:uid(),title:'Otimizacao de performance do banco',desc:'Analisar queries lentas e adicionar indices e cache onde necessario.',points:5,priority:'media',assignee:ms[2],column:'done',sprintId:null,archived:false}
+    ];
+    state.backlog=[
+      {id:uid(),title:'Integracao com Stripe',desc:'Implementar pagamentos recorrentes e assinaturas via Stripe.',points:13,priority:'alta',assignee:ms[1],column:'backlog',sprintId:null,archived:false},
+      {id:uid(),title:'Modo offline Service Worker',desc:'PWA com cache estrategico para uso offline completo.',points:8,priority:'media',assignee:ms[2],column:'backlog',sprintId:null,archived:false},
+      {id:uid(),title:'Multi-idioma i18n',desc:'Suporte a PT-BR, EN e ES com deteccao automatica.',points:5,priority:'baixa',assignee:ms[4],column:'backlog',sprintId:null,archived:false},
+      {id:uid(),title:'Analytics avancado',desc:'Graficos de retencao, funil de conversao e analise de coorte.',points:13,priority:'media',assignee:ms[0],column:'backlog',sprintId:null,archived:false}
+    ];
+    state.sprint={id:uid(),name:'Sprint 1 - MVP',startDate:new Date().toISOString(),endDate:new Date(Date.now()+14*86400000).toISOString(),active:true};
+    state.nextSprintName='Sprint 2 - Polimento';
+    state.tasks.forEach(function(t){if(state.sprint)t.sprintId=state.sprint.id;});
+  }
+}
+function getMember(name){return state.team.find(function(m){return m.name===name;});}
+function avatarHtml(name){
+  var m=getMember(name);
+  var initials=name?name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase():'?';
+  var cls=m?m.color:'cyan';
+  return '<div class="avatar '+cls+'" title="'+(name||'Sem responsavel')+'">'+initials+'</div>';
+}
+function priorityLabel(p){return {alta:'🔴 Alta',media:'🟡 Media',baixa:'🟢 Baixa'}[p]||p;}
+function formatDate(iso){if(!iso)return'';var d=new Date(iso);return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});}
+function daysLeft(iso){if(!iso)return 0;return Math.ceil((new Date(iso)-new Date())/86400000);}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(msg,type,dur){
+  type=type||'info';dur=dur||3000;
+  var icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+  var el=document.createElement('div');
+  el.className='toast '+type;
+  el.innerHTML='<span>'+icons[type]+'</span><span>'+msg+'</span>';
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(function(){el.style.animation='fadeOut 0.3s ease forwards';setTimeout(function(){el.remove();},300);},dur);
+}
+var currentPage='dashboard';
+function navigate(page){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('nav-'+page).classList.add('active');
+  document.getElementById('page-'+page).classList.add('active');
+  var titles={dashboard:['Dashboard','Visao geral do seu projeto agil'],backlog:['Product Backlog','Tarefas aguardando priorizacao'],settings:['Configuracoes','Personalize seu fluxo de trabalho']};
+  document.getElementById('topbarTitle').textContent=titles[page][0];
+  document.getElementById('topbarSub').textContent=titles[page][1];
+  document.getElementById('btnStartSprint').style.display=(page==='dashboard'&&(!state.sprint||!state.sprint.active))?'':'none';
+  document.getElementById('btnEndSprint').style.display=(page==='dashboard'&&state.sprint&&state.sprint.active)?'':'none';
+  document.getElementById('btnNewTask').style.display=(page!=='settings')?'':'none';
+  if(page==='dashboard')renderDashboard();
+  if(page==='backlog')renderBacklog();
+  if(page==='settings')renderSettings();
+}
+document.querySelectorAll('.nav-item').forEach(function(item){item.addEventListener('click',function(){navigate(item.dataset.page);});});
+function sprintTasks(){return state.tasks.filter(function(t){return !t.archived;});}
+function renderDashboard(){renderSprintBanner();renderStats();renderKanban();renderSidebar();}
+function renderSprintBanner(){
+  var c=document.getElementById('sprintBannerContainer');
+  if(state.sprint&&state.sprint.active){
+    var dl=daysLeft(state.sprint.endDate);
+    c.innerHTML='<div class="sprint-banner"><div class="sprint-banner-dot"></div><div class="sprint-banner-info"><div class="sprint-banner-name">🚀 '+escHtml(state.sprint.name)+'</div><div class="sprint-banner-dates">'+formatDate(state.sprint.startDate)+' → '+formatDate(state.sprint.endDate)+'&nbsp;·&nbsp;<span style="color:'+(dl<3?'var(--rose)':'var(--text-secondary)')+';">'+(dl>0?dl+' dia(s) restante(s)':'Encerrado hoje!')+'</span></div></div><span class="archived-badge">🟢 ATIVO</span></div>';
+  } else {
+    c.innerHTML='<div class="no-sprint-banner">💤 &nbsp; Nenhum sprint ativo. Inicie um sprint para comecar a trabalhar!</div>';
+  }
+}
+function renderStats(){
+  var tasks=sprintTasks();
+  var total=tasks.reduce(function(s,t){return s+(t.points||0);},0);
+  var donePts=tasks.filter(function(t){return t.column==='done';}).reduce(function(s,t){return s+(t.points||0);},0);
+  var progPts=tasks.filter(function(t){return t.column==='progress';}).reduce(function(s,t){return s+(t.points||0);},0);
+  var todoPts=tasks.filter(function(t){return t.column==='todo';}).reduce(function(s,t){return s+(t.points||0);},0);
+  var pct=total>0?Math.round(donePts/total*100):0;
+  document.getElementById('statTotal').textContent=total;
+  document.getElementById('statDone').textContent=donePts;
+  document.getElementById('statProgress').textContent=progPts;
+  document.getElementById('statTodo').textContent=todoPts;
+  document.getElementById('burndownPercent').textContent=pct+'%';
+  document.getElementById('burndownBar').style.width=pct+'%';
+  var dl=state.sprint?daysLeft(state.sprint.endDate):0;
+  document.getElementById('burndownDaysLeft').textContent=(state.sprint&&state.sprint.active)?dl+' dias restantes':'';
+  renderSidebar();
+}
+function renderSidebar(){
+  var tasks=sprintTasks();
+  var total=tasks.reduce(function(s,t){return s+(t.points||0);},0);
+  var done=tasks.filter(function(t){return t.column==='done';}).reduce(function(s,t){return s+(t.points||0);},0);
+  var pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('sidebarSprintName').textContent=(state.sprint&&state.sprint.active)?state.sprint.name:'Nenhum sprint ativo';
+  document.getElementById('sidebarProgressBar').style.width=pct+'%';
+  document.getElementById('sidebarProgressLabel').textContent=pct+'% concluido';
+  document.getElementById('backlogBadge').textContent=state.backlog.length;
+}
+function renderKanban(){
+  ['todo','progress','done'].forEach(function(col){
+    var tasks=sprintTasks().filter(function(t){return t.column===col;});
+    document.getElementById('count-'+col).textContent=tasks.length;
+    var body=document.getElementById('cards-'+col);
+    if(tasks.length===0){
+      var icons={todo:'📝',progress:'⚡',done:'🎉'};
+      body.innerHTML='<div class="empty-state"><div class="empty-icon">'+icons[col]+'</div><div class="empty-text">Sem tarefas aqui</div></div>';
+    } else {
+      body.innerHTML=tasks.map(function(t){return taskCardHtml(t);}).join('');
+      body.querySelectorAll('.task-card').forEach(function(card){
+        card.addEventListener('dragstart',function(e){handleDragStart(e,card.dataset.id);});
+        card.addEventListener('dragend',handleDragEnd);
+      });
+    }
+  });
+}
+function taskCardHtml(task){
+  return '<div class="task-card priority-'+task.priority+'" draggable="true" data-id="'+task.id+'" id="card-'+task.id+'">'+
+    '<div class="task-top"><div class="task-title">'+escHtml(task.title)+'</div>'+
+    '<button class="task-menu-btn" onclick="openContextMenu(event,\''+task.id+'\')" title="Opcoes">⋮</button></div>'+
+    (task.desc?'<div class="task-desc">'+escHtml(task.desc)+'</div>':'')+
+    '<div class="task-meta">'+
+    '<span class="tag tag-priority-'+task.priority+'">'+priorityLabel(task.priority)+'</span>'+
+    '<span class="tag tag-points">⚡ '+(task.points||'?')+' pts</span>'+
+    '<div class="task-assignee">'+avatarHtml(task.assignee)+'</div>'+
+    '</div></div>';
+}
+var dragId=null;
+function handleDragStart(e,id){dragId=id;e.dataTransfer.effectAllowed='move';setTimeout(function(){var c=document.getElementById('card-'+id);if(c)c.classList.add('dragging');},0);}
+function handleDragEnd(){document.querySelectorAll('.task-card').forEach(function(c){c.classList.remove('dragging');});document.querySelectorAll('.kanban-column').forEach(function(c){c.classList.remove('drag-over');});dragId=null;}
+function handleDragOver(e,col){e.preventDefault();e.dataTransfer.dropEffect='move';document.querySelectorAll('.kanban-column').forEach(function(c){c.classList.remove('drag-over');});document.getElementById('col-'+col).classList.add('drag-over');}
+function handleDragLeave(e,col){if(!e.currentTarget.contains(e.relatedTarget)){document.getElementById('col-'+col).classList.remove('drag-over');}}
+function handleDrop(e,col){
+  e.preventDefault();if(!dragId)return;
+  var task=state.tasks.find(function(t){return t.id===dragId;});
+  if(task&&task.column!==col){
+    task.column=col;saveState();renderDashboard();
+    var colNames={todo:'A Fazer',progress:'Em Progresso',done:'Concluido'};
+    toast('Tarefa movida para "'+colNames[col]+'"','success');
+  }
+  handleDragEnd();
+}
+var contextTaskId=null;
+function openContextMenu(e,id){
+  e.stopPropagation();contextTaskId=id;
+  var menu=document.getElementById('contextMenu');
+  var task=state.tasks.find(function(t){return t.id===id;});
+  var cols=['todo','progress','done'];var ci=cols.indexOf(task.column);
+  document.getElementById('ctxMoveLeft').style.display=ci>0?'':'none';
+  document.getElementById('ctxMoveRight').style.display=ci<2?'':'none';
+  menu.style.left=e.pageX+'px';menu.style.top=e.pageY+'px';
+  menu.classList.add('open');
+}
+document.addEventListener('click',function(){document.getElementById('contextMenu').classList.remove('open');contextTaskId=null;});
+document.getElementById('ctxEdit').onclick=function(e){e.stopPropagation();if(contextTaskId)openEditTask(contextTaskId);document.getElementById('contextMenu').classList.remove('open');};
+document.getElementById('ctxMoveLeft').onclick=function(e){e.stopPropagation();moveTask(contextTaskId,-1);document.getElementById('contextMenu').classList.remove('open');};
+document.getElementById('ctxMoveRight').onclick=function(e){e.stopPropagation();moveTask(contextTaskId,1);document.getElementById('contextMenu').classList.remove('open');};
+document.getElementById('ctxToBacklog').onclick=function(e){
+  e.stopPropagation();
+  var t=state.tasks.find(function(x){return x.id===contextTaskId;});
+  if(t){state.tasks=state.tasks.filter(function(x){return x.id!==t.id;});t.column='backlog';t.sprintId=null;state.backlog.push(t);saveState();renderDashboard();toast('Tarefa enviada ao Backlog','info');}
+  document.getElementById('contextMenu').classList.remove('open');
+};
+document.getElementById('ctxDelete').onclick=function(e){
+  e.stopPropagation();
+  if(contextTaskId&&confirm('Excluir esta tarefa permanentemente?')){state.tasks=state.tasks.filter(function(t){return t.id!==contextTaskId;});saveState();renderDashboard();toast('Tarefa excluida','error');}
+  document.getElementById('contextMenu').classList.remove('open');
+};
+function moveTask(id,dir){
+  var cols=['todo','progress','done'];
+  var task=state.tasks.find(function(t){return t.id===id;});if(!task)return;
+  var ci=cols.indexOf(task.column);var nc=cols[ci+dir];
+  if(nc){task.column=nc;saveState();renderDashboard();toast('Movido para "'+{todo:'A Fazer',progress:'Em Progresso',done:'Concluido'}[nc]+'"','success');}
+}
+var editingTaskId=null,editingSource='tasks',selectedPoints=null,selectedPrio=null,defaultColumn='todo';
+function openNewTask(col){
+  editingTaskId=null;editingSource=(col==='backlog')?'backlog':'tasks';defaultColumn=col;
+  selectedPoints=null;selectedPrio='media';
+  document.getElementById('modalTitle').textContent='Nova Tarefa';
+  document.getElementById('taskTitle').value='';document.getElementById('taskDesc').value='';
+  document.getElementById('taskColumn').value=(col==='backlog')?'todo':col;
+  document.getElementById('colSelectGroup').style.display=(col==='backlog')?'none':'';
+  updatePointsUI();updatePrioUI();populateAssignee(null);openModal('taskModal');
+}
+function openEditTask(id){
+  var src1=state.tasks.find(function(t){return t.id===id;});
+  var src2=state.backlog.find(function(t){return t.id===id;});
+  if(!src1&&!src2)return;
+  editingSource=src1?'tasks':'backlog';editingTaskId=id;
+  var task=src1||src2;
+  selectedPoints=task.points;selectedPrio=task.priority;
+  document.getElementById('modalTitle').textContent='Editar Tarefa';
+  document.getElementById('taskTitle').value=task.title;
+  document.getElementById('taskDesc').value=task.desc||'';
+  document.getElementById('taskColumn').value=task.column!=='backlog'?task.column:'todo';
+  document.getElementById('colSelectGroup').style.display=(editingSource==='backlog')?'none':'';
+  updatePointsUI();updatePrioUI();populateAssignee(task.assignee);openModal('taskModal');
+}
+function populateAssignee(selected){
+  var sel=document.getElementById('taskAssignee');
+  sel.innerHTML='<option value="">Sem responsavel</option>';
+  state.team.forEach(function(m){var opt=document.createElement('option');opt.value=m.name;opt.textContent=m.name+' — '+m.role;if(m.name===selected)opt.selected=true;sel.appendChild(opt);});
+}
+document.getElementById('pointsGrid').querySelectorAll('.point-btn').forEach(function(btn){btn.addEventListener('click',function(){selectedPoints=Number(btn.dataset.val);updatePointsUI();});});
+function updatePointsUI(){document.querySelectorAll('.point-btn').forEach(function(b){b.classList.toggle('selected',Number(b.dataset.val)===selectedPoints);});}
+document.querySelectorAll('.prio-btn').forEach(function(btn){btn.addEventListener('click',function(){selectedPrio=btn.dataset.val;updatePrioUI();});});
+function updatePrioUI(){document.querySelectorAll('.prio-btn').forEach(function(b){b.classList.toggle('selected',b.dataset.val===selectedPrio);});}
+document.getElementById('modalSave').onclick=function(){
+  var title=document.getElementById('taskTitle').value.trim();
+  if(!title){toast('O titulo e obrigatorio!','error');return;}
+  if(!selectedPoints){toast('Selecione os Story Points!','error');return;}
+  if(!selectedPrio){toast('Selecione a prioridade!','error');return;}
+  var col=document.getElementById('taskColumn').value||defaultColumn;
+  var assignee=document.getElementById('taskAssignee').value;
+  var desc=document.getElementById('taskDesc').value.trim();
+  if(editingTaskId){
+    var arr=(editingSource==='tasks'?state.tasks:state.backlog);
+    var task=arr.find(function(t){return t.id===editingTaskId;});
+    if(task){task.title=title;task.desc=desc;task.points=selectedPoints;task.priority=selectedPrio;task.assignee=assignee;if(editingSource==='tasks')task.column=col;}
+    toast('Tarefa atualizada!','success');
+  } else {
+    var newTask={id:uid(),title:title,desc:desc,points:selectedPoints,priority:selectedPrio,assignee:assignee,archived:false,column:(editingSource==='backlog')?'backlog':col,sprintId:(state.sprint&&state.sprint.active)?state.sprint.id:null};
+    if(editingSource==='backlog')state.backlog.push(newTask);else state.tasks.push(newTask);
+    toast('Tarefa criada!','success');
+  }
+  saveState();closeModal('taskModal');
+  if(currentPage==='dashboard')renderDashboard();
+  if(currentPage==='backlog')renderBacklog();
+  renderSidebar();
+};
+document.getElementById('modalClose').onclick=function(){closeModal('taskModal');};
+document.getElementById('modalCancel').onclick=function(){closeModal('taskModal');};
+document.getElementById('btnNewTask').onclick=function(){openNewTask(currentPage==='backlog'?'backlog':'todo');};
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)closeModal(o.id);});});
+document.getElementById('btnStartSprint').onclick=function(){
+  if(state.sprint&&state.sprint.active){toast('Ja existe um sprint ativo!','warning');return;}
+  var name=state.nextSprintName||'Sprint';var dur=state.sprintDuration||14;
+  document.getElementById('sprintModalTitle').textContent='Iniciar Sprint';
+  document.getElementById('sprintModalIcon').textContent='🚀';
+  document.getElementById('sprintModalText').innerHTML='Deseja iniciar o <strong>'+escHtml(name)+'</strong>?<br>Duracao: <strong>'+dur+' dias</strong>.';
+  document.getElementById('sprintModalConfirm').textContent='▶ Iniciar Sprint';
+  document.getElementById('sprintModalConfirm').className='btn btn-primary';
+  document.getElementById('sprintModalConfirm').onclick=confirmStartSprint;
+  openModal('sprintModal');
+};
+function confirmStartSprint(){
+  var name=state.nextSprintName||'Sprint';var dur=Number(state.sprintDuration)||14;
+  state.sprint={id:uid(),name:name,startDate:new Date().toISOString(),endDate:new Date(Date.now()+dur*86400000).toISOString(),active:true};
+  saveState();closeModal('sprintModal');navigate('dashboard');
+  toast('Sprint "'+name+'" iniciado!','success');
+}
+document.getElementById('btnEndSprint').onclick=function(){
+  if(!state.sprint||!state.sprint.active){toast('Nenhum sprint ativo!','warning');return;}
+  var tasks=sprintTasks();
+  var done=tasks.filter(function(t){return t.column==='done';});
+  var pending=tasks.filter(function(t){return t.column!=='done';});
+  document.getElementById('sprintModalTitle').textContent='Encerrar Sprint';
+  document.getElementById('sprintModalIcon').textContent='🏁';
+  document.getElementById('sprintModalText').innerHTML='Encerrar o sprint <strong>'+escHtml(state.sprint.name)+'</strong>?<br><br>✅ <strong>'+done.length+'</strong> tarefa(s) concluida(s) serao arquivadas<br>🔄 <strong>'+pending.length+'</strong> tarefa(s) pendente(s) voltam ao Backlog';
+  document.getElementById('sprintModalConfirm').textContent='🏁 Encerrar Sprint';
+  document.getElementById('sprintModalConfirm').className='btn btn-danger';
+  document.getElementById('sprintModalConfirm').onclick=confirmEndSprint;
+  openModal('sprintModal');
+};
+function confirmEndSprint(){
+  var tasks=sprintTasks();
+  var done=tasks.filter(function(t){return t.column==='done';});
+  var pending=tasks.filter(function(t){return t.column!=='done';});
+  done.forEach(function(t){t.archived=true;state.archived.push(t);});
+  pending.forEach(function(t){t.column='backlog';t.sprintId=null;state.backlog.push(t);});
+  state.tasks=[];
+  state.sprint=Object.assign({},state.sprint,{active:false});
+  var match=state.sprint.name.match(/(\d+)/);
+  if(match){var num=parseInt(match[1])+1;state.nextSprintName=state.sprint.name.replace(/\d+/,num);}
+  saveState();closeModal('sprintModal');navigate('dashboard');
+  toast('Sprint encerrado! '+done.length+' tarefa(s) arquivadas.','success');
+}
+document.getElementById('sprintModalClose').onclick=function(){closeModal('sprintModal');};
+document.getElementById('sprintModalCancel').onclick=function(){closeModal('sprintModal');};
+function renderBacklog(){
+  var list=document.getElementById('backlogList');
+  if(state.backlog.length===0){
+    list.innerHTML='<div class="empty-state" style="padding:60px 20px"><div class="empty-icon">📭</div><div class="empty-text">O backlog esta vazio.<br>Adicione historias e ideias para o proximo sprint!</div></div>';return;
+  }
+  list.innerHTML=state.backlog.map(function(task){
+    return '<div class="backlog-item">'+
+      '<div><div class="backlog-item-title">'+escHtml(task.title)+'</div>'+(task.desc?'<div class="backlog-item-desc">'+escHtml(task.desc)+'</div>':'')+' </div>'+
+      '<span class="tag tag-priority-'+task.priority+'">'+priorityLabel(task.priority)+'</span>'+
+      '<span class="tag tag-points">⚡ '+(task.points||'?')+'</span>'+
+      '<div style="display:flex;align-items:center;gap:6px">'+avatarHtml(task.assignee)+'<span style="font-size:12px;color:var(--text-secondary)">'+escHtml(task.assignee||'—')+'</span></div>'+
+      '<button class="btn btn-secondary btn-sm" onclick="backlogToSprint(\''+task.id+'\')">▶ Sprint</button>'+
+      '<button class="btn btn-danger btn-sm" onclick="deleteBacklogItem(\''+task.id+'\')">🗑️</button>'+
+      '</div>';
+  }).join('');
+}
+function backlogToSprint(id){
+  if(!state.sprint||!state.sprint.active){toast('Inicie um sprint primeiro!','warning');return;}
+  var idx=state.backlog.findIndex(function(t){return t.id===id;});if(idx===-1)return;
+  var task=state.backlog.splice(idx,1)[0];task.column='todo';task.sprintId=state.sprint.id;state.tasks.push(task);
+  saveState();renderBacklog();renderSidebar();toast('Tarefa movida para o Sprint!','success');
+}
+function deleteBacklogItem(id){
+  if(!confirm('Excluir esta tarefa do backlog?'))return;
+  state.backlog=state.backlog.filter(function(t){return t.id!==id;});
+  saveState();renderBacklog();renderSidebar();toast('Tarefa removida','error');
+}
+function renderSettings(){
+  document.getElementById('cfgProjectName').value=state.projectName||'';
+  document.getElementById('cfgSprintDuration').value=state.sprintDuration||14;
+  document.getElementById('cfgSprintName').value=state.nextSprintName||'';
+  renderTeam();
+}
+function renderTeam(){
+  var list=document.getElementById('teamList');
+  if(state.team.length===0){list.innerHTML='<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">Nenhum membro adicionado</div>';return;}
+  list.innerHTML=state.team.map(function(m){
+    return '<div class="team-member">'+avatarHtml(m.name)+
+      '<div class="member-info"><div class="member-name">'+escHtml(m.name)+'</div><div class="member-role">'+escHtml(m.role)+'</div></div>'+
+      '<button class="remove-member-btn" onclick="removeMember(\''+m.id+'\')" title="Remover">✕</button></div>';
+  }).join('');
+}
+document.getElementById('btnSaveSettings').onclick=function(){
+  state.projectName=document.getElementById('cfgProjectName').value.trim()||'Meu Projeto Agil';
+  state.sprintDuration=Number(document.getElementById('cfgSprintDuration').value)||14;
+  state.nextSprintName=document.getElementById('cfgSprintName').value.trim()||'Sprint';
+  saveState();toast('Configuracoes salvas!','success');
+};
+document.getElementById('btnAddMember').onclick=function(){
+  var name=document.getElementById('newMemberName').value.trim();
+  var role=document.getElementById('newMemberRole').value;
+  var color=document.getElementById('newMemberColor').value;
+  if(!name){toast('Digite o nome do membro!','error');return;}
+  if(state.team.find(function(m){return m.name.toLowerCase()===name.toLowerCase();})){toast('Membro ja existe!','warning');return;}
+  state.team.push({id:uid(),name:name,role:role,color:color});
+  document.getElementById('newMemberName').value='';
+  saveState();renderTeam();toast(name+' adicionado ao time!','success');
+};
+function removeMember(id){
+  var m=state.team.find(function(x){return x.id===id;});if(!m)return;
+  if(!confirm('Remover '+m.name+' do time?'))return;
+  state.team=state.team.filter(function(x){return x.id!==id;});
+  saveState();renderTeam();toast(m.name+' removido','info');
+}
+function init(){
+  loadState();seedData();saveState();
+  document.getElementById('btnStartSprint').style.display=(!state.sprint||!state.sprint.active)?'':'none';
+  document.getElementById('btnEndSprint').style.display=(state.sprint&&state.sprint.active)?'':'none';
+  renderDashboard();
+}
+init();
+</script>
+</body>
+</html>
