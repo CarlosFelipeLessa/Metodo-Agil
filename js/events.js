@@ -2,7 +2,7 @@
  * AgilFlow — Events & Interactions Module
  */
 
-import { state, saveState, uid, sprintTasks } from './state.js';
+import { state, saveState, uid, sprintTasks, exportBackupJSON, importBackupJSON, resetToSeedData } from './state.js';
 import {
   currentPage,
   navigate,
@@ -17,6 +17,11 @@ import {
   renderBacklog,
   renderSidebar,
   renderTeam,
+  renderKanban,
+  setFilterQuery,
+  setFilterPriority,
+  setFilterAssignee,
+  resetFilters,
   editingTaskId,
   editingSource,
   selectedPoints,
@@ -40,6 +45,8 @@ export function setupEventListeners() {
   setupContextMenu();
   setupDragAndDrop();
   setupDelegatedClicks();
+  setupFilters();
+  setupBackupControls();
 }
 
 /**
@@ -512,6 +519,17 @@ function setupDelegatedClicks() {
       return;
     }
 
+    // Ação rápida nos cartões do Kanban (otimizada para Touch / Mobile)
+    const quickMoveBtn = e.target.closest('[data-action="quick-move"]');
+    if (quickMoveBtn) {
+      const id = quickMoveBtn.dataset.id;
+      const dir = parseInt(quickMoveBtn.dataset.dir, 10);
+      if (id && !isNaN(dir)) {
+        moveTask(id, dir);
+      }
+      return;
+    }
+
     // Botão "+ Adicionar tarefa" nas colunas do Kanban
     const addColBtn = e.target.closest('[data-action="add-column-task"]');
     if (addColBtn) {
@@ -606,3 +624,106 @@ function removeMember(id) {
     }
   );
 }
+
+/**
+ * Configuração dos campos da barra de filtros
+ */
+function setupFilters() {
+  const queryInput = document.getElementById('filterQuery');
+  const prioSelect = document.getElementById('filterPriority');
+  const assigneeSelect = document.getElementById('filterAssignee');
+  const resetBtn = document.getElementById('btnResetFilters');
+
+  if (queryInput) {
+    queryInput.addEventListener('input', e => {
+      setFilterQuery(e.target.value);
+      renderKanban();
+    });
+  }
+
+  if (prioSelect) {
+    prioSelect.addEventListener('change', e => {
+      setFilterPriority(e.target.value);
+      renderKanban();
+    });
+  }
+
+  if (assigneeSelect) {
+    assigneeSelect.addEventListener('change', e => {
+      setFilterAssignee(e.target.value);
+      renderKanban();
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      resetFilters();
+      renderKanban();
+      toast('Filtros redefinidos', 'info', 1500);
+    });
+  }
+}
+
+/**
+ * Configuração de Exportação, Importação e Reset de Dados
+ */
+function setupBackupControls() {
+  const btnExport = document.getElementById('btnExportBackup');
+  if (btnExport) {
+    btnExport.addEventListener('click', () => {
+      const json = exportBackupJSON();
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `agilflow-backup-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('Backup exportado com sucesso!', 'success');
+    });
+  }
+
+  const btnTriggerImport = document.getElementById('btnTriggerImport');
+  const fileInput = document.getElementById('fileImportBackup');
+  if (btnTriggerImport && fileInput) {
+    btnTriggerImport.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = event => {
+        try {
+          importBackupJSON(event.target.result);
+          toast('Backup restaurado com sucesso!', 'success');
+          navigate('dashboard');
+        } catch (err) {
+          toast('Arquivo de backup inválido!', 'error');
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+  }
+
+  const btnReset = document.getElementById('btnResetData');
+  if (btnReset) {
+    btnReset.addEventListener('click', () => {
+      showConfirmDialog(
+        'Restaurar Demonstração',
+        '🔄',
+        'Deseja restaurar todos os dados para a versão de demonstração original?<br>As alterações não salvas serão substituídas.',
+        'Restaurar',
+        'btn-danger',
+        () => {
+          resetToSeedData();
+          toast('Dados de demonstração restaurados!', 'info');
+          navigate('dashboard');
+        }
+      );
+    });
+  }
+}
+

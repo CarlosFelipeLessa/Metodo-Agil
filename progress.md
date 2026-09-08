@@ -21,3 +21,8 @@
   - Migrado todo o código JavaScript legado (`var`) para ES Modules com `const`/`let` e padrões funcionais.
   - Eliminados todos os atributos inline de eventos (`onclick`, `ondrag...`) em favor de listeners desacoplados e delegação de eventos.
   - Atualizado o `index.html` para marcação puramente semântica e limpa.
+- Concluída a Fase 4 (UI/UX & Interatividade):
+  - Implementada barra de busca em tempo real com filtros combinados de prioridade (Alta, Média, Baixa) e responsável.
+  - Adicionado badge de feedback visual com contagem de tarefas filtradas e botão de reset rápido de filtros.
+  - Adicionados botões ergonômicos de movimentação rápida nos cartões do Kanban (`⬅️` e `➡️`), garantindo usabilidade total em telas de toque.
+  - Criado sistema completo de persistência e portabilidade de dados: exportação de backup JSON com data, importador com validação de esquema e botão de restauração para estado de demonstração.

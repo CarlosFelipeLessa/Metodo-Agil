@@ -11,6 +11,25 @@ export let selectedPoints = null;
 export let selectedPrio = 'media';
 export let defaultColumn = 'todo';
 
+export let filterQuery = '';
+export let filterPriority = 'all';
+export let filterAssignee = 'all';
+
+export function setFilterQuery(q) { filterQuery = q; }
+export function setFilterPriority(p) { filterPriority = p; }
+export function setFilterAssignee(a) { filterAssignee = a; }
+export function resetFilters() {
+  filterQuery = '';
+  filterPriority = 'all';
+  filterAssignee = 'all';
+  const qEl = document.getElementById('filterQuery');
+  const pEl = document.getElementById('filterPriority');
+  const aEl = document.getElementById('filterAssignee');
+  if (qEl) qEl.value = '';
+  if (pEl) pEl.value = 'all';
+  if (aEl) aEl.value = 'all';
+}
+
 /**
  * Escapa strings para evitar injeção XSS
  */
@@ -161,6 +180,7 @@ export function navigate(page) {
 export function renderDashboard() {
   renderSprintBanner();
   renderStats();
+  populateAssigneeFilter();
   renderKanban();
   renderSidebar();
 }
@@ -249,6 +269,18 @@ export function renderSidebar() {
  * Constrói o HTML individual de um cartão de tarefa
  */
 export function taskCardHtml(task) {
+  let quickNavHtml = '';
+  if (task.column === 'todo') {
+    quickNavHtml = `<button class="quick-nav-btn next" data-action="quick-move" data-id="${task.id}" data-dir="1" title="Avançar para Em Progresso">Avançar ➡️</button>`;
+  } else if (task.column === 'progress') {
+    quickNavHtml = `
+      <button class="quick-nav-btn prev" data-action="quick-move" data-id="${task.id}" data-dir="-1" title="Voltar para A Fazer">⬅️</button>
+      <button class="quick-nav-btn next success" data-action="quick-move" data-id="${task.id}" data-dir="1" title="Concluir tarefa">Concluir ✅</button>
+    `;
+  } else if (task.column === 'done') {
+    quickNavHtml = `<button class="quick-nav-btn prev" data-action="quick-move" data-id="${task.id}" data-dir="-1" title="Reabrir para Em Progresso">⬅️ Reabrir</button>`;
+  }
+
   return `
     <div class="task-card priority-${task.priority}" draggable="true" data-id="${task.id}" id="card-${task.id}">
       <div class="task-top">
@@ -261,15 +293,57 @@ export function taskCardHtml(task) {
         <span class="tag tag-points">⚡ ${task.points || '?'} pts</span>
         <div class="task-assignee">${avatarHtml(task.assignee)}</div>
       </div>
+      <div class="task-card-footer">
+        <div class="task-quick-nav">${quickNavHtml}</div>
+      </div>
     </div>`;
 }
 
 /**
- * Renderiza as colunas do quadro Kanban
+ * Preenche o seletor de responsáveis na barra de filtros
+ */
+export function populateAssigneeFilter() {
+  const sel = document.getElementById('filterAssignee');
+  if (!sel) return;
+  const curr = sel.value || 'all';
+  sel.innerHTML = '<option value="all">Todos os responsáveis</option>';
+  state.team.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.name;
+    opt.textContent = m.name;
+    if (m.name === curr) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+/**
+ * Renderiza as colunas do quadro Kanban com suporte a filtros dinâmicos
  */
 export function renderKanban() {
+  const isFiltering = filterQuery.trim() !== '' || filterPriority !== 'all' || filterAssignee !== 'all';
+  const filterBadge = document.getElementById('filterCountBadge');
+  const allTasks = sprintTasks();
+  let totalVisible = 0;
+
   ['todo', 'progress', 'done'].forEach(col => {
-    const tasks = sprintTasks().filter(t => t.column === col);
+    let tasks = allTasks.filter(t => t.column === col);
+
+    if (filterQuery.trim()) {
+      const q = filterQuery.toLowerCase().trim();
+      tasks = tasks.filter(t => 
+        (t.title && t.title.toLowerCase().includes(q)) || 
+        (t.desc && t.desc.toLowerCase().includes(q))
+      );
+    }
+    if (filterPriority !== 'all') {
+      tasks = tasks.filter(t => t.priority === filterPriority);
+    }
+    if (filterAssignee !== 'all') {
+      tasks = tasks.filter(t => t.assignee === filterAssignee);
+    }
+
+    totalVisible += tasks.length;
+
     const countEl = document.getElementById(`count-${col}`);
     const bodyEl = document.getElementById(`cards-${col}`);
 
@@ -277,16 +351,33 @@ export function renderKanban() {
     if (!bodyEl) return;
 
     if (tasks.length === 0) {
-      const icons = { todo: '📝', progress: '⚡', done: '🎉' };
-      bodyEl.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">${icons[col]}</div>
-          <div class="empty-text">Sem tarefas aqui</div>
-        </div>`;
+      if (isFiltering) {
+        bodyEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-text">Nenhuma tarefa correspondente aos filtros</div>
+          </div>`;
+      } else {
+        const icons = { todo: '📝', progress: '⚡', done: '🎉' };
+        bodyEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">${icons[col]}</div>
+            <div class="empty-text">Sem tarefas aqui</div>
+          </div>`;
+      }
     } else {
       bodyEl.innerHTML = tasks.map(t => taskCardHtml(t)).join('');
     }
   });
+
+  if (filterBadge) {
+    if (isFiltering) {
+      filterBadge.style.display = 'inline-flex';
+      filterBadge.textContent = `${totalVisible} de ${allTasks.length} tarefas`;
+    } else {
+      filterBadge.style.display = 'none';
+    }
+  }
 }
 
 /**

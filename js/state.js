@@ -109,3 +109,62 @@ export function seedData() {
     });
   }
 }
+
+/**
+ * Exporta o estado completo em formato JSON para download
+ */
+export function exportBackupJSON() {
+  const backup = {
+    appName: 'AgilFlow',
+    version: '1.0',
+    exportDate: new Date().toISOString(),
+    data: state
+  };
+  return JSON.stringify(backup, null, 2);
+}
+
+/**
+ * Importa e valida um backup JSON, restaurando o estado
+ */
+export function importBackupJSON(jsonStr) {
+  try {
+    const parsed = JSON.parse(jsonStr);
+    const data = parsed.data || parsed;
+
+    if (!data || !Array.isArray(data.tasks) || !Array.isArray(data.team)) {
+      throw new Error('Arquivo de backup inválido ou incompatível.');
+    }
+
+    state.projectName = data.projectName || 'Meu Projeto Ágil';
+    state.sprintDuration = Number(data.sprintDuration) || 14;
+    state.sprint = data.sprint || null;
+    state.nextSprintName = data.nextSprintName || 'Sprint';
+    state.tasks = data.tasks || [];
+    state.backlog = data.backlog || [];
+    state.team = data.team || [];
+    state.archived = data.archived || [];
+
+    saveState();
+    return true;
+  } catch (error) {
+    console.error('Falha ao importar backup:', error);
+    throw error;
+  }
+}
+
+/**
+ * Reseta o estado para os dados de demonstração iniciais
+ */
+export function resetToSeedData() {
+  state.team = [];
+  state.tasks = [];
+  state.backlog = [];
+  state.archived = [];
+  state.sprint = null;
+  state.projectName = 'Meu Projeto Ágil';
+  state.sprintDuration = 14;
+  state.nextSprintName = 'Sprint 1 — MVP';
+  seedData();
+  saveState();
+}
+

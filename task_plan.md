@@ -36,9 +36,11 @@ Execução das fases de refatoração e polimento do AgilFlow para atender a pad
 
 ---
 
-## Fase 4: UI/UX & Interatividade
-- [ ] Ações móveis para kanban sem depender exclusivamente de drag & drop nativo.
-- [ ] Sistema de backup (Export/Import JSON).
+## Fase 4: UI/UX & Interatividade (Concluída ✅)
+- [x] Ações de movimentação rápida para mobile/touch sem depender exclusivamente de drag & drop nativo.
+- [x] Sistema completo de backup (Exportação/Importação de JSON e restauração de dados demo).
+- [x] Sistema de busca em tempo real e filtros combinados (texto, prioridade e responsável).
+- [x] Indicador dinâmico de contagem de tarefas filtradas.
 
 ---
 
