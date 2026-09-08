@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AgilFlow — Gestão Ágil de Projetos</title>
   <meta name="description" content="Gerencie seus projetos com metodologias ágeis Scrum e Kanban. Acompanhe sprints, backlogs e o progresso da sua equipe em tempo real." />
+  <meta name="theme-color" content="#080c12" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -177,6 +179,220 @@
     .no-sprint-banner{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--bg-surface);border:1px dashed var(--border-light);border-radius:var(--radius-lg);margin-bottom:16px;color:var(--text-muted);font-size:13px}
     .archived-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:20px;font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
     ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px}
+
+    /* =========================================================
+       RESPONSIVIDADE: TABLETS E SMARTPHONES
+       ========================================================= */
+    @media (hover: none), (max-width: 992px) {
+      .task-menu-btn {
+        opacity: 1 !important;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .app {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 12px 20px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+        position: sticky;
+        top: 0;
+        background: rgba(13, 17, 23, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .sidebar-logo {
+        padding: 0;
+        border-bottom: none;
+      }
+      .sidebar-nav {
+        flex-direction: row;
+        padding: 0;
+        gap: 6px;
+        align-items: center;
+      }
+      .nav-label {
+        display: none;
+      }
+      .sidebar-footer {
+        display: none;
+      }
+      .main {
+        overflow: visible;
+        height: auto;
+      }
+      .topbar {
+        padding: 14px 20px;
+      }
+      .page {
+        padding: 18px 20px;
+        height: auto;
+        overflow: visible;
+      }
+      .sprint-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        font-size: 13.5px;
+      }
+      .sidebar {
+        padding: 10px 14px;
+        gap: 8px;
+      }
+      .logo-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+      }
+      .logo-text {
+        font-size: 14px;
+      }
+      .logo-sub {
+        display: none;
+      }
+      .sidebar-nav {
+        gap: 4px;
+      }
+      .nav-item {
+        padding: 7px 9px;
+        font-size: 12px;
+        gap: 6px;
+      }
+      .nav-item .nav-icon {
+        font-size: 14px;
+        width: 16px;
+      }
+      .nav-item .badge {
+        font-size: 9px;
+        padding: 1px 5px;
+      }
+      .topbar {
+        padding: 12px 14px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .topbar-title {
+        font-size: 18px;
+      }
+      .topbar-subtitle {
+        font-size: 11px;
+      }
+      .topbar-actions {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .topbar-actions .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+      .page {
+        padding: 14px;
+      }
+      .burndown-section {
+        padding: 16px;
+        border-radius: var(--radius-lg);
+        margin-bottom: 18px;
+      }
+      .sprint-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .stat-card {
+        padding: 12px;
+      }
+      .stat-value {
+        font-size: 22px;
+      }
+      .burndown-percent {
+        font-size: 24px;
+      }
+      .kanban-board {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .kanban-column {
+        min-height: auto;
+      }
+      .col-body {
+        max-height: 420px;
+        overflow-y: auto;
+      }
+      .backlog-header-row {
+        display: none;
+      }
+      .backlog-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 14px;
+      }
+      .backlog-item > div:first-child {
+        width: 100%;
+        margin-bottom: 2px;
+      }
+      .backlog-item > div:nth-child(4) {
+        margin-right: auto;
+      }
+      .modal {
+        width: 95vw;
+        max-height: 92vh;
+        border-radius: var(--radius-lg);
+      }
+      .modal-header {
+        padding: 16px 18px 14px;
+      }
+      .modal-body {
+        padding: 16px 18px;
+      }
+      .modal-footer {
+        padding: 12px 18px;
+      }
+      .points-grid {
+        gap: 6px;
+      }
+      .point-btn {
+        width: 38px;
+        height: 32px;
+        font-size: 12px;
+      }
+      .prio-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+      }
+      .toast-container {
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+      }
+      .toast {
+        min-width: 0;
+        width: 100%;
+      }
+    }
   </style>
 </head><body>
 <div class="context-menu" id="contextMenu">
@@ -193,7 +409,7 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle">Nova Tarefa</span>
-      <button class="modal-close" id="modalClose">✕</button>
+      <button class="modal-close" id="modalClose" aria-label="Fechar modal">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">Título *</label><input type="text" class="form-input" id="taskTitle" placeholder="Ex: Implementar autenticação JWT" /></div>
@@ -224,7 +440,7 @@
 </div>
 <div class="modal-overlay" id="sprintModal">
   <div class="modal confirm-modal">
-    <div class="modal-header"><span class="modal-title" id="sprintModalTitle">Sprint</span><button class="modal-close" id="sprintModalClose">✕</button></div>
+    <div class="modal-header"><span class="modal-title" id="sprintModalTitle">Sprint</span><button class="modal-close" id="sprintModalClose" aria-label="Fechar modal">✕</button></div>
     <div class="modal-body"><div class="confirm-icon" id="sprintModalIcon">🚀</div><p class="confirm-text" id="sprintModalText"></p></div>
     <div class="modal-footer"><button class="btn btn-secondary" id="sprintModalCancel">Cancelar</button><button class="btn btn-primary" id="sprintModalConfirm">Confirmar</button></div>
   </div>
@@ -482,7 +698,7 @@ function renderKanban(){
 function taskCardHtml(task){
   return '<div class="task-card priority-'+task.priority+'" draggable="true" data-id="'+task.id+'" id="card-'+task.id+'">'+
     '<div class="task-top"><div class="task-title">'+escHtml(task.title)+'</div>'+
-    '<button class="task-menu-btn" onclick="openContextMenu(event,\''+task.id+'\')" title="Opcoes">⋮</button></div>'+
+    '<button class="task-menu-btn" onclick="openContextMenu(event,\''+task.id+'\')" title="Opções da tarefa" aria-label="Opções da tarefa">⋮</button></div>'+
     (task.desc?'<div class="task-desc">'+escHtml(task.desc)+'</div>':'')+
     '<div class="task-meta">'+
     '<span class="tag tag-priority-'+task.priority+'">'+priorityLabel(task.priority)+'</span>'+
@@ -655,8 +871,8 @@ function renderBacklog(){
       '<span class="tag tag-priority-'+task.priority+'">'+priorityLabel(task.priority)+'</span>'+
       '<span class="tag tag-points">⚡ '+(task.points||'?')+'</span>'+
       '<div style="display:flex;align-items:center;gap:6px">'+avatarHtml(task.assignee)+'<span style="font-size:12px;color:var(--text-secondary)">'+escHtml(task.assignee||'—')+'</span></div>'+
-      '<button class="btn btn-secondary btn-sm" onclick="backlogToSprint(\''+task.id+'\')">▶ Sprint</button>'+
-      '<button class="btn btn-danger btn-sm" onclick="deleteBacklogItem(\''+task.id+'\')">🗑️</button>'+
+      '<button class="btn btn-secondary btn-sm" onclick="backlogToSprint(\''+task.id+'\')" title="Mover para o Sprint ativo" aria-label="Mover para o Sprint ativo">▶ Sprint</button>'+
+      '<button class="btn btn-danger btn-sm" onclick="deleteBacklogItem(\''+task.id+'\')" title="Excluir tarefa" aria-label="Excluir tarefa">🗑️</button>'+
       '</div>';
   }).join('');
 }
