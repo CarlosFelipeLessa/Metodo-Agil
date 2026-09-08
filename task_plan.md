@@ -20,10 +20,11 @@ Execução das fases de refatoração e polimento do AgilFlow para atender a pad
 
 ---
 
-## Fase 2: Quick Wins
-- [ ] Acessibilidade (a11y: aria-labels e for/id em labels).
-- [ ] Substituição de confirm() nativo por modal estilizado.
-- [ ] Otimização de Google Fonts (font-display: swap).
+## Fase 2: Quick Wins (Concluída ✅)
+- [x] Acessibilidade (a11y: aria-labels e for/id associados em todos os inputs e labels).
+- [x] Substituição de confirm() nativo por modal estilizado com suporte a ações destrutivas customizadas.
+- [x] Otimização de Google Fonts (font-display: swap e preconnect crossorigin).
+- [x] Tratamento de estouro de texto (word-break / overflow-wrap) e maxlength em todos os inputs.
 
 ---
 

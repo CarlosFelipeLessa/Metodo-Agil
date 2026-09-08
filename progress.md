@@ -12,3 +12,7 @@
   - Implementada responsividade completa para tablets e celulares em `index.html`.
   - Adicionadas melhorias de acessibilidade (a11y) em botões e modais.
   - Realizados commits semânticos no padrão Conventional Commits.
+- Concluída a Fase 2 (Quick Wins):
+  - Substituídos todos os `confirm()` nativos do navegador pelo modal customizado `.confirm-modal`.
+  - Associados todos os `<label>` a seus respectivos inputs via `for` e `id`.
+  - Adicionados atributos `maxlength` nos campos de texto e `word-break: break-word` nos títulos e descrições dos cards para prevenir estouro visual.
