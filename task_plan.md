@@ -41,6 +41,7 @@ Execução das fases de refatoração e polimento do AgilFlow para atender a pad
 - [x] Sistema completo de backup (Exportação/Importação de JSON e restauração de dados demo).
 - [x] Sistema de busca em tempo real e filtros combinados (texto, prioridade e responsável).
 - [x] Indicador dinâmico de contagem de tarefas filtradas.
+- [x] Alternador de perfil ágil (Profile Switcher na Topbar) e filtro rápido "🎯 Minhas Tarefas".
 
 ---
 

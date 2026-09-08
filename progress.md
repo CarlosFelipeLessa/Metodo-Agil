@@ -26,3 +26,6 @@
   - Adicionado badge de feedback visual com contagem de tarefas filtradas e botão de reset rápido de filtros.
   - Adicionados botões ergonômicos de movimentação rápida nos cartões do Kanban (`⬅️` e `➡️`), garantindo usabilidade total em telas de toque.
   - Criado sistema completo de persistência e portabilidade de dados: exportação de backup JSON com data, importador com validação de esquema e botão de restauração para estado de demonstração.
+  - Implementado o Alternador de Perfil Ágil (Profile Switcher) na barra superior com identificação visual por cor/avatar e sincronização reativa.
+  - Adicionado botão de filtro rápido "🎯 Minhas Tarefas", que isola tarefas do membro ativo com um clique e destaca o estado ativo no Kanban.
+

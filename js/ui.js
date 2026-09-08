@@ -2,7 +2,7 @@
  * AgilFlow — UI Rendering & Component Helpers Module
  */
 
-import { state, sprintTasks, getMember } from './state.js';
+import { state, sprintTasks, getMember, getActiveMember, setActiveMember } from './state.js';
 
 export let currentPage = 'dashboard';
 export let editingTaskId = null;
@@ -25,9 +25,14 @@ export function resetFilters() {
   const qEl = document.getElementById('filterQuery');
   const pEl = document.getElementById('filterPriority');
   const aEl = document.getElementById('filterAssignee');
+  const btnMyTasks = document.getElementById('btnMyTasks');
   if (qEl) qEl.value = '';
   if (pEl) pEl.value = 'all';
   if (aEl) aEl.value = 'all';
+  if (btnMyTasks) {
+    btnMyTasks.classList.remove('active');
+    btnMyTasks.setAttribute('aria-pressed', 'false');
+  }
 }
 
 /**
@@ -169,6 +174,8 @@ export function navigate(page) {
   if (btnEnd) btnEnd.style.display = (page === 'dashboard' && state.sprint && state.sprint.active) ? '' : 'none';
   if (btnNew) btnNew.style.display = (page !== 'settings') ? '' : 'none';
 
+  renderProfileSwitcher();
+
   if (page === 'dashboard') renderDashboard();
   if (page === 'backlog') renderBacklog();
   if (page === 'settings') renderSettings();
@@ -178,6 +185,7 @@ export function navigate(page) {
  * Renderiza o Dashboard e todas as suas seções
  */
 export function renderDashboard() {
+  renderProfileSwitcher();
   renderSprintBanner();
   renderStats();
   populateAssigneeFilter();
@@ -263,6 +271,35 @@ export function renderSidebar() {
   if (sBar) sBar.style.width = `${pct}%`;
   if (sLabel) sLabel.textContent = `${pct}% concluído`;
   if (bBadge) bBadge.textContent = state.backlog.length;
+}
+
+/**
+ * Renderiza o componente de troca de perfil na barra superior
+ */
+export function renderProfileSwitcher() {
+  const sel = document.getElementById('selectActiveMember');
+  const avatar = document.getElementById('topbarUserAvatar');
+  if (!sel) return;
+
+  const active = getActiveMember();
+  sel.innerHTML = '';
+
+  state.team.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = `${m.name} (${m.role})`;
+    if (active && m.id === active.id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+
+  if (avatar && active) {
+    const initials = active.name
+      ? active.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+      : '??';
+    avatar.textContent = initials;
+    avatar.className = `avatar ${active.color || 'cyan'}`;
+    avatar.title = `Perfil Ativo: ${active.name} (${active.role})`;
+  }
 }
 
 /**
@@ -378,6 +415,14 @@ export function renderKanban() {
       filterBadge.style.display = 'none';
     }
   }
+
+  const btnMyTasks = document.getElementById('btnMyTasks');
+  const active = getActiveMember();
+  if (btnMyTasks) {
+    const isFilteringMine = Boolean(active && filterAssignee === active.name);
+    btnMyTasks.classList.toggle('active', isFilteringMine);
+    btnMyTasks.setAttribute('aria-pressed', isFilteringMine ? 'true' : 'false');
+  }
 }
 
 /**
@@ -441,11 +486,16 @@ export function renderTeam() {
     return;
   }
 
+  const active = getActiveMember();
+
   list.innerHTML = state.team.map(m => `
     <div class="team-member">
       ${avatarHtml(m.name)}
       <div class="member-info">
-        <div class="member-name">${escHtml(m.name)}</div>
+        <div class="member-name">
+          ${escHtml(m.name)}
+          ${active && active.id === m.id ? '<span class="active-member-pill">Perfil Ativo</span>' : ''}
+        </div>
         <div class="member-role">${escHtml(m.role)}</div>
       </div>
       <button class="remove-member-btn" data-action="remove-member" data-id="${m.id}" title="Remover" aria-label="Remover membro">✕</button>
@@ -460,12 +510,15 @@ export function populateAssignee(selected) {
   const sel = document.getElementById('taskAssignee');
   if (!sel) return;
 
+  const active = getActiveMember();
+  const defaultSelected = (selected === null && active) ? active.name : selected;
+
   sel.innerHTML = '<option value="">Sem responsável</option>';
   state.team.forEach(m => {
     const opt = document.createElement('option');
     opt.value = m.name;
     opt.textContent = `${m.name} — ${m.role}`;
-    if (m.name === selected) opt.selected = true;
+    if (m.name === defaultSelected) opt.selected = true;
     sel.appendChild(opt);
   });
 }

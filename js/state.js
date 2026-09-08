@@ -9,6 +9,7 @@ export const state = {
   sprintDuration: 14,
   sprint: null,
   nextSprintName: 'Sprint 1 — MVP',
+  activeMemberId: null,
   tasks: [],
   backlog: [],
   team: [],
@@ -63,6 +64,32 @@ export function getMember(name) {
 }
 
 /**
+ * Retorna o membro ativo atual do time Scrum
+ */
+export function getActiveMember() {
+  if (!state.team || state.team.length === 0) return null;
+  let found = state.team.find(m => m.id === state.activeMemberId);
+  if (!found) {
+    found = state.team[0];
+    state.activeMemberId = found.id;
+  }
+  return found;
+}
+
+/**
+ * Altera o membro ativo e persiste no estado
+ */
+export function setActiveMember(id) {
+  const member = state.team.find(m => m.id === id);
+  if (member) {
+    state.activeMemberId = member.id;
+    saveState();
+    return member;
+  }
+  return null;
+}
+
+/**
  * Inicializa dados de demonstração caso a base esteja vazia
  */
 export function seedData() {
@@ -74,6 +101,10 @@ export function seedData() {
       { id: uid(), name: 'Diego Mota', role: 'QA', color: 'amber' },
       { id: uid(), name: 'Elisa Cruz', role: 'Scrum Master', color: 'rose' }
     ];
+  }
+
+  if (!state.activeMemberId && state.team.length > 0) {
+    state.activeMemberId = state.team[0].id;
   }
 
   if (state.tasks.length === 0 && state.backlog.length === 0) {
@@ -143,6 +174,7 @@ export function importBackupJSON(jsonStr) {
     state.backlog = data.backlog || [];
     state.team = data.team || [];
     state.archived = data.archived || [];
+    state.activeMemberId = data.activeMemberId || (state.team[0] ? state.team[0].id : null);
 
     saveState();
     return true;
@@ -160,6 +192,7 @@ export function resetToSeedData() {
   state.tasks = [];
   state.backlog = [];
   state.archived = [];
+  state.activeMemberId = null;
   state.sprint = null;
   state.projectName = 'Meu Projeto Ágil';
   state.sprintDuration = 14;

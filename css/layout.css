@@ -363,6 +363,11 @@
     gap: 8px;
   }
 
+  .profile-switcher {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   .topbar-actions .btn {
     flex: 1;
     justify-content: center;

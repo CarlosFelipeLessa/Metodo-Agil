@@ -2,7 +2,7 @@
  * AgilFlow — Events & Interactions Module
  */
 
-import { state, saveState, uid, sprintTasks, exportBackupJSON, importBackupJSON, resetToSeedData } from './state.js';
+import { state, saveState, uid, sprintTasks, exportBackupJSON, importBackupJSON, resetToSeedData, getActiveMember, setActiveMember } from './state.js';
 import {
   currentPage,
   navigate,
@@ -26,9 +26,9 @@ import {
   editingSource,
   selectedPoints,
   selectedPrio,
-  defaultColumn,
   setSelectedPoints,
-  setSelectedPrio
+  setSelectedPrio,
+  renderProfileSwitcher
 } from './ui.js';
 
 let dragId = null;
@@ -46,6 +46,7 @@ export function setupEventListeners() {
   setupDragAndDrop();
   setupDelegatedClicks();
   setupFilters();
+  setupProfileSwitcher();
   setupBackupControls();
 }
 
@@ -318,6 +319,7 @@ function setupSettingsControls() {
 
       saveState();
       renderTeam();
+      renderProfileSwitcher();
       toast(`${name} adicionado ao time!`, 'success');
     });
   }
@@ -618,8 +620,12 @@ function removeMember(id) {
     'btn-danger',
     () => {
       state.team = state.team.filter(x => x.id !== id);
+      if (state.activeMemberId === id) {
+        state.activeMemberId = state.team[0] ? state.team[0].id : null;
+      }
       saveState();
       renderTeam();
+      renderProfileSwitcher();
       toast(`${m.name} removido da equipe`, 'info');
     }
   );
@@ -660,6 +666,51 @@ function setupFilters() {
       resetFilters();
       renderKanban();
       toast('Filtros redefinidos', 'info', 1500);
+    });
+  }
+
+  const btnMyTasks = document.getElementById('btnMyTasks');
+  if (btnMyTasks) {
+    btnMyTasks.addEventListener('click', () => {
+      const active = getActiveMember();
+      if (!active) return;
+
+      if (filterAssignee === active.name) {
+        setFilterAssignee('all');
+        if (assigneeSelect) assigneeSelect.value = 'all';
+        toast('Exibindo tarefas de todo o time', 'info', 1800);
+      } else {
+        setFilterAssignee(active.name);
+        if (assigneeSelect) assigneeSelect.value = active.name;
+        toast(`Filtrando: Minhas tarefas (${active.name})`, 'success', 1800);
+      }
+      renderKanban();
+    });
+  }
+}
+
+/**
+ * Controle de alternância de perfil de usuário ativo (Profile Switcher)
+ */
+function setupProfileSwitcher() {
+  const sel = document.getElementById('selectActiveMember');
+  if (sel) {
+    sel.addEventListener('change', e => {
+      const member = setActiveMember(e.target.value);
+      if (member) {
+        renderProfileSwitcher();
+        toast(`Atuando como: ${member.name} (${member.role})`, 'info', 2500);
+
+        // Se o botão "Minhas Tarefas" estiver ativo, sincroniza a filtragem para o novo perfil
+        const btnMyTasks = document.getElementById('btnMyTasks');
+        if (btnMyTasks && btnMyTasks.classList.contains('active')) {
+          setFilterAssignee(member.name);
+          const assigneeSelect = document.getElementById('filterAssignee');
+          if (assigneeSelect) assigneeSelect.value = member.name;
+        }
+        renderKanban();
+        renderTeam();
+      }
     });
   }
 }

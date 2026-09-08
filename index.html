@@ -151,6 +151,15 @@
           <div class="topbar-subtitle" id="topbarSub">Visão geral do seu projeto ágil</div>
         </div>
         <div class="topbar-actions">
+          <div class="profile-switcher" id="profileSwitcher" title="Perfil ativo no time ágil">
+            <div class="profile-avatar-wrap">
+              <div class="avatar cyan" id="topbarUserAvatar">AL</div>
+            </div>
+            <div class="profile-info">
+              <span class="profile-label">Atuando como:</span>
+              <select class="profile-select" id="selectActiveMember" aria-label="Alternar perfil ativo"></select>
+            </div>
+          </div>
           <button class="btn btn-secondary btn-sm" id="btnStartSprint" style="display: none">▶ Iniciar Sprint</button>
           <button class="btn btn-danger btn-sm" id="btnEndSprint" style="display: none">🏁 Encerrar Sprint</button>
           <button class="btn btn-primary btn-sm" id="btnNewTask">+ Nova Tarefa</button>
@@ -225,6 +234,9 @@
           <select class="filter-select" id="filterAssignee" aria-label="Filtrar por responsável">
             <option value="all">Todos os responsáveis</option>
           </select>
+          <button class="filter-my-tasks-btn" id="btnMyTasks" type="button" aria-pressed="false" title="Filtrar tarefas atribuídas ao perfil ativo">
+            <span>🎯</span> Minhas Tarefas
+          </button>
           <span class="filter-badge" id="filterCountBadge" style="display: none;"></span>
           <button class="filter-reset-btn" id="btnResetFilters" type="button">✕ Limpar</button>
         </div>
