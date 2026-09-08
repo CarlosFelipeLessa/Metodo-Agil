@@ -16,3 +16,8 @@
   - Substituídos todos os `confirm()` nativos do navegador pelo modal customizado `.confirm-modal`.
   - Associados todos os `<label>` a seus respectivos inputs via `for` e `id`.
   - Adicionados atributos `maxlength` nos campos de texto e `word-break: break-word` nos títulos e descrições dos cards para prevenir estouro visual.
+- Concluída a Fase 3 (Arquitetura & Clean Code):
+  - Desacoplado o monolito de 66KB em módulos independentes nas pastas `css/` e `js/`.
+  - Migrado todo o código JavaScript legado (`var`) para ES Modules com `const`/`let` e padrões funcionais.
+  - Eliminados todos os atributos inline de eventos (`onclick`, `ondrag...`) em favor de listeners desacoplados e delegação de eventos.
+  - Atualizado o `index.html` para marcação puramente semântica e limpa.

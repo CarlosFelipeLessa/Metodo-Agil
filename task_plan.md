@@ -28,9 +28,11 @@ Execução das fases de refatoração e polimento do AgilFlow para atender a pad
 
 ---
 
-## Fase 3: Arquitetura & Clean Code
-- [ ] Desacoplamento de arquivos em `css/` e `js/`.
-- [ ] Migração de variáveis globais e `var` para ES Modules (`const`/`let`).
+## Fase 3: Arquitetura & Clean Code (Concluída ✅)
+- [x] Desacoplamento de arquivos em `css/` (`variables.css`, `layout.css`, `components.css`).
+- [x] Desacoplamento de arquivos em `js/` (`state.js`, `ui.js`, `events.js`, `app.js`).
+- [x] Migração de variáveis globais e `var` para ES Modules (`const`/`let`).
+- [x] Eliminação completa de scripts inline e atributos de evento no HTML.
 
 ---
 

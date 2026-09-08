@@ -115,11 +115,20 @@ Acesse `http://localhost:3000` no seu navegador.
 ## 📁 Estrutura de Arquivos
 
 ```text
-├── .gitattributes      # Configurações de atributos do Git
-├── .gitignore          # Arquivos de sistema, logs e dependências ignorados
-├── index.html          # Aplicação completa (Marcação, Estilos e Lógica)
-├── README.md           # Documentação técnica e guia do projeto
-└── task_plan.md        # Planejamento das fases de evolução contínua
+├── css/
+│   ├── variables.css     # Design tokens, paleta de cores e resets
+│   ├── layout.css        # Estrutura do app, sidebar e regras responsivas
+│   └── components.css    # Kanban, cards, modais, toasts e formulários
+├── js/
+│   ├── state.js          # Gerenciamento de estado e persistência no localStorage
+│   ├── ui.js             # Renderização visual e helpers de interface
+│   ├── events.js         # Ouvintes de eventos desacoplados e Drag & Drop
+│   └── app.js            # Ponto de entrada (Entrypoint)
+├── .gitattributes        # Configurações de atributos do Git
+├── .gitignore            # Arquivos de sistema, logs e dependências ignorados
+├── index.html            # Marcação semântica limpa
+├── README.md             # Documentação técnica e guia do projeto
+└── task_plan.md          # Planejamento das fases de evolução contínua
 ```
 
 ---
@@ -130,7 +139,7 @@ Acesse `http://localhost:3000` no seu navegador.
 - [x] Persistência em `localStorage` e dados de exemplo.
 - [x] Documentação técnica completa e guia de governança.
 - [x] Layout responsivo para smartphones e tablets.
-- [ ] Modularização de código em arquivos independentes (`css/` e `js/`).
+- [x] Modularização de código em arquivos independentes (`css/` e `js/`).
 - [ ] Exportação e importação de backups em formato JSON.
 - [ ] Filtros em tempo real por responsável, tag e prioridade.
 
